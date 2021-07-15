@@ -1,8 +1,12 @@
+const Login = require('../models/login');
+
 exports.createLogin = async (req, res) => {
     try {
-        const {name, country} = req.body;
-        res.status(201).json({success: true, data: {}, message: 'Bank successfully created'});
-    }catch (e) {
+        const {status, type, includes, balance, price, country, bank} = req.body;
+        const login = await Login.create({status, type, includes, balance, price, country, bank});
+        const populatedLogin = await login.populate({path: 'bank'});
+        res.status(201).json({success: true, data: populatedLogin, message: 'Bank successfully created'});
+    } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
     }
 }
@@ -11,8 +15,11 @@ exports.createLogin = async (req, res) => {
 exports.getLogin = async (req, res) => {
     try {
         const {id} = req.params;
-        res.status(200).json({success: true, data: {}, message: `Bank with id ${id} retrieved`});
-    }catch (e) {
+        const login = await Login.findById(id).populate({path: 'bank'});
+        if (!login)
+            return res.status(404).json({success: false, message: `Bank Login with id ${id} not found`, data: null});
+        res.status(200).json({success: true, data: login, message: `Bank Login with id ${id} retrieved`});
+    } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
     }
 }
@@ -21,8 +28,25 @@ exports.getLogin = async (req, res) => {
 exports.updateLogin = async (req, res) => {
     try {
         const {id} = req.params;
-        res.status(200).json({success: true, data: {}, message: `Bank with id ${id} successfully updated`});
-    }catch (e) {
+        const login = await Login.findById(id).populate({path: 'bank'});
+        if (!login)
+            return res.status(404).json({success: false, message: `Bank Login with id ${id} not found`, data: null});
+        const updates = Object.keys(req.body);
+        const allowedUpdates = ['status', 'type', 'includes', 'balance', 'price', 'country'];
+        const isAllowed = updates.every(update => allowedUpdates.includes(update));
+        if (!isAllowed)
+            return res.status(400).json({success: false, message: `Updates not allowed`, data: null});
+        for (let key of updates) {
+            login[key] = req.body[key];
+        }
+        const updatedCCDump = await login.save();
+        const populatedLogin = await updatedCCDump.populate({path: 'bank'}).execPopulate();
+        res.status(200).json({
+            success: true,
+            data: populatedLogin,
+            message: `Bank Login with id ${id} successfully updated`
+        });
+    } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
     }
 }
@@ -30,8 +54,12 @@ exports.updateLogin = async (req, res) => {
 exports.deleteLogin = async (req, res) => {
     try {
         const {id} = req.params;
-        res.status(200).json({success: true, data: {}, message: `Bank with id ${id} successfully updated`});
-    }catch (e) {
+        const login = await Login.findById(id).populate({path: 'bank'});
+        if (!login)
+            return res.status(404).json({success: false, message: `Bank Login with id ${id} not found`, data: null});
+
+        res.status(200).json({success: true, data: login, message: `Bank Login with id ${id} successfully deleted`});
+    } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
     }
 }
@@ -43,11 +71,15 @@ exports.getLogins = async (req, res) => {
         const limit = parseInt(req.query.size) || 20;
         const skip = (page - 1) * limit;
         const match = {};
-        if(req.query.user){
-            match['user'] = req.query.user;
+        if(req.query.bank){
+            match['bank'] = req.query.bank;
         }
-        res.status(200).json({success: true, data: {}, message: 'Bank successfully created'});
-    }catch (e) {
+        if(req.query.country){
+            match['country'] = req.query.country;
+        }
+        const ccDumps = await Login.find(match).populate({path: 'bank'}).skip(skip).limit(limit);
+        res.status(200).json({success: true, data: ccDumps, message: 'Bank Logins successfully retrieved'});
+    } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
     }
 }

@@ -69,8 +69,8 @@ exports.getCCDumps = async (req, res) => {
         const limit = parseInt(req.query.size) || 20;
         const skip = (page - 1) * limit;
         const match = {};
-
-        res.status(200).json({success: true, data: {}, message: 'CC Dumps successfully created'});
+        const ccDumps = await CCDump.find(match).populate({path: 'bankBase'}).skip(skip).limit(limit);
+        res.status(200).json({success: true, data: ccDumps, message: 'CC Dumps successfully created'});
     } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
     }

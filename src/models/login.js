@@ -34,3 +34,5 @@ const loginSchema = new Schema({
 }, {timestamps: {createdAt: true, updatedAt: true}});
 
 const Login = mongoose.model('Login', loginSchema);
+
+module.exports = Login;
