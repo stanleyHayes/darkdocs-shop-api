@@ -10,6 +10,11 @@ const bankSchema = new Schema({
     country: {
         type: String,
         required: true
+    },
+    status: {
+        type: String,
+        enum: ['Active', 'Deleted'],
+        default: 'Active'
     }
 }, {timestamps: {createdAt: true, updatedAt: true}});
 
