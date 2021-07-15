@@ -23,11 +23,11 @@
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.1",
     "mongoose": "^5.13.2",
+    "morgan": "^1.10.0",
     "otp-generator": "^2.0.1",
     "validator": "^13.6.0"
   },
   "devDependencies": {
-    "morgan": "^1.10.0",
     "nodemon": "^2.0.12"
   }
 }
