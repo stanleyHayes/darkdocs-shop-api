@@ -5,16 +5,14 @@ const helmet = require('helmet');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 
-const {MONGODB_URI} = require('../config/keys');
 //routes
 const userRoutes = require('../src/routes/users');
 const authenticationRoutes = require('../src/routes/authentication');
 const orderRoutes = require('../src/routes/orders');
 
-const {PORT, NODE_ENV} = require('../config/keys');
 dotenv.config();
 
-mongoose.connect(MONGODB_URI, {
+mongoose.connect(process.env.MONGODB_URI, {
     useCreateIndex: true,
     useNewUrlParser: true,
     useFindAndModify: false,
@@ -36,6 +34,6 @@ app.use('/api/v1/auth', authenticationRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/orders', orderRoutes);
 
-app.listen(PORT, () => {
-    console.log(`Connected to server in ${NODE_ENV} mode on port ${PORT}`);
+app.listen(process.env.PORT || 5000, () => {
+    console.log(`Connected to server in ${process.env.NODE_ENV} mode on port ${process.env.PORT}`);
 });

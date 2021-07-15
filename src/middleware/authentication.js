@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const {JWT_SECRET} = require('../../config/keys');
 const User = require('../models/user');
 
 const authorize = (...roles) => {
@@ -22,7 +21,7 @@ const authenticate = async (req, res, next) => {
             return res.status(400).json({data: null, token: null, message: 'invalid header format'});
         const token = req.headers['authorization'].split(' ')[1];
         if (!token) return res.status(400).json({data: null, token: null, message: 'session expired'});
-        const {_id} = jwt.verify(token, JWT_SECRET);
+        const {_id} = jwt.verify(token, process.env.JWT_SECRET);
         if (!_id) return res.status(400).json({data: null, token: null, message: 'session expired'});
         const user = await User.findById(_id);
         if (!user) return res.status(400).json({data: null, token: null, message: 'session expired'});
