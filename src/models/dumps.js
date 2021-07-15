@@ -35,8 +35,14 @@ const ccDumpSchema = new Schema({
         type: Number,
         required: true
     },
+    status: {
+        type: String,
+        enum: ['Active', 'Deleted', 'Unavailable'],
+        default: 'Active'
+    }
 
 }, {timestamps: {createdAt: true, updatedAt: true}});
 
 const CCDump = mongoose.model('CCDump', ccDumpSchema);
 
+module.exports = CCDump;
