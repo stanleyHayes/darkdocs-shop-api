@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
-const {JWT_SECRET} = require('../config/keys');
+const {JWT_SECRET} = require('../../config/keys');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -18,15 +19,6 @@ const userSchema = new mongoose.Schema({
         validate(value) {
             if (!validator.isEmail(value)) {
                 throw new Error(`${value} is not a valid email`);
-            }
-        }
-    },
-    phone: {
-        type: String,
-        required: true,
-        validate(value) {
-            if (!validator.isMobilePhone(value)) {
-                throw new Error(`${value} is not a valid phone`);
             }
         }
     },
@@ -52,6 +44,7 @@ const userSchema = new mongoose.Schema({
         type: Date
     },
     password: {
+        required: true,
         type: String,
         trim: true,
         validate(value) {
@@ -81,16 +74,17 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['USER', 'ADMIN', 'SUPER_ADMIN'],
         default: 'USER'
+    },
+    balance: {
+        type: Number,
+        default: 0
+    },
+    status: {
+        type: String,
+        enum: ['Active', 'Blocked', 'Deleted'],
+        default: 'Active'
     }
 }, {timestamps: {createdAt: true, updatedAt: true}});
-
-userSchema.pre('save', async function (next) {
-    if (this.isModified('password')) {
-        this.password = await bcrypt.hash(this.password, 10);
-        await this.save();
-    }
-    next();
-});
 
 userSchema.methods.generateToken = function () {
     return jwt.sign({

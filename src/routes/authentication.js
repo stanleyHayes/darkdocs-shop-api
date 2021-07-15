@@ -15,7 +15,7 @@ router.put('/verify-otp', authenticate, verifyOTP);
 router.post('/resend-otp', resendOTP);
 router.put('/profile', authenticate, updateProfile);
 router.get('/profile', authenticate, getProfile);
-router.put('/profile/update-password', authenticate, updatePassword);
-router.put('/profile/deactivate-profile', authenticate, deactivateProfile);
+router.put('/update-password', authenticate, updatePassword);
+router.put('/deactivate-profile', authenticate, deactivateProfile);
 
 module.exports = router;

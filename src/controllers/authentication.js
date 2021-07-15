@@ -9,8 +9,9 @@ const User = require('../models/user');
 const register = async (req, res) => {
     try {
         const {password, email, username, name, role} = req.body;
-        if (!email || !name || !username || !username || !password)
+        if (!email || !name || !username || !password)
             return res.status(400).json({data: null, token: null, message: 'missing required field'});
+
         if (!validator.isEmail(email)) {
             return res.status(400).json({data: null, token: null, message: 'invalid email or phone'});
         }
@@ -19,17 +20,19 @@ const register = async (req, res) => {
 
         const otp = otpGenerator.generate(6, {digits: true, alphabets: false, upperCase: false, specialChars: false});
         const otpValidUntil = moment().add(7, 'days');
-        const user = await User.create({
+        const user = new User({
             email,
             name,
             otp,
             otpValidUntil,
             role,
-            password
+            password: await bcrypt.hash(password, 10),
+            username
         });
+        const savedUser = await user.save();
         const token = user.generateToken();
         res.status(201).json({
-            data: user,
+            data: savedUser,
             token,
             message: `code has been sent to your account ${email}. Verify it to start your trial`
         });
@@ -53,7 +56,7 @@ const login = async (req, res) => {
             token: null,
             message: `no account associated with ${email}`
         });
-        if (!existingUser.hasVerifiedEmailOrPhone) return res.status(401).json({
+        if (!existingUser.hasVerifiedEmail) return res.status(401).json({
             data: null,
             token: null,
             message: `please verify your account`
@@ -79,30 +82,22 @@ const login = async (req, res) => {
 
 const verifyOTP = async (req, res) => {
     try {
-        const {otp, password} = req.body;
-        if (!otp || !password) return res.status(400).json({
+        const {otp} = req.body;
+        if (!otp) return res.status(400).json({
             data: null,
             token: null,
             message: 'missing otp or password'
         });
         if (otp !== req.user.otp) return res.status(401).json({data: null, token: null, message: 'incorrect otp'});
-        if (!validator.isStrongPassword(password)) return res.status(400).json({
-            data: null,
-            token: null,
-            message: 'weak password'
-        });
-        if (!req.user.hasVerifiedEmailOrPhone && Date.now() > req.user.otpValidUntil.getTime())
+        if (!req.user.hasVerifiedEmail && Date.now() > req.user.otpValidUntil.getTime())
             return res.status(400).json({data: null, token: null, message: 'otp expired. request for a new otp'});
-        if (otp === req.user.otp && validator.isStrongPassword(password)) {
-            req.user.hasVerifiedEmailOrPhone = true;
+        if (otp === req.user.otp) {
+            req.user.hasVerifiedEmail = true;
             req.user.otpVerifiedAt = new Date();
-            req.user.password = await bcrypt.hash(password, 10);
         }
-        console.log(3)
         const user = await req.user.save();
         res.status(200).json({data: user, message: 'account verified'});
     } catch (e) {
-        console.log(4)
         res.status(400).json({message: `${e.message}`});
     }
 }
