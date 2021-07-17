@@ -10,7 +10,8 @@ const appSchema = new Schema({
             if(!validator.isBtcAddress(value)){
                 throw new Error(`Invalid BTC Address ${value}`);
             }
-        }
+        },
+        required: true
     },
     email: {
         type: String,
@@ -18,10 +19,20 @@ const appSchema = new Schema({
             if(!validator.isEmail(value)){
                 throw new Error(`Invalid Email Address ${value}`);
             }
-        }
+        },
+        required: true
+    },
+    phone: {
+        type: String,
+        validate(value){
+            if(!validator.isMobilePhone(value)){
+                throw new Error(`Invalid Phone Number ${value}`);
+            }
+        },
+        required: true
     }
 });
 
-const App = mongoose.model('App', appSchema);
+const Information = mongoose.model('Information', appSchema);
 
-module.exports = App;
+module.exports = Information;
