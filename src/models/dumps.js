@@ -23,8 +23,7 @@ const ccDumpSchema = new Schema({
         required: true
     },
     bankBase: {
-        type: Schema.Types.ObjectId,
-        ref: 'Bank',
+        type: String,
         required: true
     },
     quantity: {
