@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
 
 const Schema = mongoose.Schema;
 const orderSchema = new Schema({
@@ -8,7 +7,7 @@ const orderSchema = new Schema({
         ref: 'User',
         type: Schema.Types.ObjectId
     },
-    amount: {
+    price: {
         type: Number,
         required: true,
         min: 0
@@ -18,13 +17,21 @@ const orderSchema = new Schema({
         enum: ['Pending', 'Completed', 'Cancelled', 'Deleted'],
         default: 'Pending'
     },
-    address: {
+    type: {
         type: String,
-        validate: function (value) {
-            if(!validator.isBtcAddress(value)){
-                throw new Error(`Invalid BTC Address ${value}`);
-            }
-        }
+        enum: ['Cheque', 'Dump', 'Login'],
+        required: true
+    },
+    item: {
+        cheque: {
+            type: Schema.Types.ObjectId
+        },
+        login: {
+            type: Schema.Types.ObjectId
+        },
+        ccDumps: {
+            type: Schema.Types.ObjectId
+        },
     }
 }, {timestamps: {createdAt: true, updatedAt: true}});
 
