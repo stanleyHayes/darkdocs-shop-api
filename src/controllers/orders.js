@@ -2,9 +2,14 @@ const Order = require('../models/order');
 
 exports.createOrder = async (req, res) => {
     try {
-        const {address, amount} = req.body;
-        const order = await Order.create({user: req.user, address, amount});
-        const updatedOrder = await order.populate({path: 'user'}).execPopulate();
+        const {address, price, type, item} = req.body;
+        const order = await Order.create({user: req.user, address, price, type, item});
+        const itemToPopulate = {};
+        switch (type) {
+            case 'Cheque':
+                itemToPopulate['path'] = 'item.cheque';
+        }
+        const updatedOrder = await order.populate({path: 'user'}).path({}).execPopulate();
         res.status(201).json({data: updatedOrder, message: 'Order successfully created', success: true});
     } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
