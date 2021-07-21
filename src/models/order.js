@@ -24,13 +24,16 @@ const orderSchema = new Schema({
     },
     item: {
         cheque: {
-            type: Schema.Types.ObjectId
+            type: Schema.Types.ObjectId,
+            ref: 'Cheque'
         },
         login: {
-            type: Schema.Types.ObjectId
+            type: Schema.Types.ObjectId,
+            ref: 'Login'
         },
         ccDumps: {
-            type: Schema.Types.ObjectId
+            type: Schema.Types.ObjectId,
+            ref: 'Dumps'
         },
     }
 }, {timestamps: {createdAt: true, updatedAt: true}});
