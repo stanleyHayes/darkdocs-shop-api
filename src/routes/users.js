@@ -1,17 +1,19 @@
 const router = require('express').Router({mergeParams: true});
 
 const {
-    updateUser, blockUser, deactivateUser, getUser, getUsers, reactivateUser, unblockUser
+    updateUser, blockUser, deactivateUser, getUser, getUsers, reactivateUser, unblockUser, createUser, deleteUser
 } = require('../controllers/users');
 
-const {authenticate} = require('../middleware/authentication');
+const {authenticate, authorize} = require('../middleware/authentication');
 
-router.get('/', authenticate, getUsers);
-router.get('/:userID', authenticate, getUser);
-router.put('/:userID/update', authenticate, updateUser);
-router.put('/:userID/block', authenticate, blockUser);
-router.put('/:userID/unblock', authenticate, unblockUser);
-router.put('/:userID/deactivate', authenticate, deactivateUser);
-router.put('/:userID/reactivate', authenticate, reactivateUser)
+router.post('/', authenticate, authorize('SUPER_ADMIN'), createUser);
+router.get('/', authenticate, authorize('SUPER_ADMIN', 'ADMIN'), getUsers);
+router.get('/:userID', authenticate, authorize('SUPER_ADMIN', 'ADMIN'), getUser);
+router.put('/:userID/update', authenticate, authorize('SUPER_ADMIN', 'ADMIN'), updateUser);
+router.put('/:userID/block', authenticate, authorize('SUPER_ADMIN'), blockUser);
+router.put('/:userID/unblock', authenticate, authorize('SUPER_ADMIN'), unblockUser);
+router.put('/:userID/deactivate', authenticate, authorize('SUPER_ADMIN'), deactivateUser);
+router.put('/:userID/reactivate', authenticate, authorize('SUPER_ADMIN'), reactivateUser)
+router.delete('/:userID', authenticate, authorize('SUPER_ADMIN'), deleteUser);
 
 module.exports = router;
