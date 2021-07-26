@@ -4,8 +4,8 @@ exports.createLogin = async (req, res) => {
     try {
         const {status, type, includes, balance, price, country, bank} = req.body;
         const login = await Login.create({status, type, includes, balance, price, country, bank});
-        const populatedLogin = await login.populate({path: 'bank'});
-        res.status(201).json({success: true, data: populatedLogin, message: 'Bank successfully created'});
+        await login.populate({path: 'bank'}).execPopulate();
+        res.status(201).json({success: true, data: login, message: 'Bank successfully created'});
     } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
     }
