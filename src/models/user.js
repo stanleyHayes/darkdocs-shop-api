@@ -25,6 +25,15 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         unique: true
     },
+    country: {
+        type: String,
+    },
+    city: {
+        type: String,
+    },
+    postalCode: {
+        type: String,
+    },
     hasVerifiedEmail: {
         type: Boolean,
         default: false

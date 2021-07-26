@@ -4,8 +4,8 @@ const User = require('../models/user');
 exports.createOrder = async (req, res) => {
     try {
         const {address, price, type, item} = req.body;
-        const user= await User.findById(req.user._id);
-        if(user.balance < price){
+        const user = await User.findById(req.user._id);
+        if (user.balance < price) {
             return res.status(400).json({success: false, data: null, message: `Insufficient balance`});
         }
         const order = await Order.create({user: req.user, address, price, type, item});
@@ -65,20 +65,20 @@ exports.getOrders = async (req, res) => {
         const limit = parseInt(req.query.size) || 20;
         const skip = (page - 1) * limit;
         const match = {};
-        if(req.query.user){
+        if (req.query.user) {
             match['user'] = req.query.user;
         }
-        if(req.query.type){
+        if (req.query.type) {
             match['type'] = req.query.type;
         }
-        if(req.query.status){
+        if (req.query.status) {
             match['status'] = req.query.status;
         }
-        const orders = await Order.find(match).skip(skip).limit(limit).populate({path: 'user'});
-        await orders
+        const orders = await Order.find(match).skip(skip).limit(limit).populate({path: 'user'})
             .populate({path: 'item', populate: {path: 'cheque'}})
             .populate({path: 'item', populate: {path: 'login'}})
-            .populate({path: 'item', populate: {path: 'ccDumps'}}).execPopulate();
+            .populate({path: 'item', populate: {path: 'ccDumps'}});
+
         res.status(200).json({data: orders, message: `${orders.length} orders retrieved successfully`, success: true});
     } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
@@ -96,9 +96,9 @@ exports.updateOrder = async (req, res) => {
         const updates = Object.keys(req.body);
         const allowedUpdates = ['status',];
         const isAllowed = updates.every(update => allowedUpdates.includes(update));
-        if(!isAllowed)
+        if (!isAllowed)
             return res.status(400).json({success: false, message: `Update not allowed`, data: null});
-        for(let key of updates){
+        for (let key of updates) {
             order[key] = req.body[key];
         }
         const updatedOrder = await order.save();

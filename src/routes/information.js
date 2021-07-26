@@ -1,16 +1,10 @@
 const express = require('express');
 
 const router = express.Router({mergeParams: true});
-const {deleteFund, getFund, updateFund, createFund, getFunds} = require('../controllers/funds');
-const {authenticate} = require('../middleware/authentication');
+const {getInformation, updateInformation} = require('../controllers/information');
+const {authenticate, authorize} = require('../middleware/authentication');
 
 router.route('/')
-    .post(authenticate, createFund)
-    .get(authenticate, getFunds);
-
-router.route('/:id')
-    .get(authenticate, getFund)
-    .put(authenticate, updateFund)
-    .delete(authenticate, deleteFund);
-
+    .get(authenticate, authorize('ADMIN', 'SUPER_ADMIN'), getInformation)
+    .put(authenticate, authorize('ADMIN', 'SUPER_ADMIN'), updateInformation);
 module.exports = router;

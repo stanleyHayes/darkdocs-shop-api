@@ -21,15 +21,6 @@ const appSchema = new Schema({
             }
         },
         required: true
-    },
-    phone: {
-        type: String,
-        validate(value){
-            if(!validator.isMobilePhone(value)){
-                throw new Error(`Invalid Phone Number ${value}`);
-            }
-        },
-        required: true
     }
 });
 

@@ -125,7 +125,7 @@ const resendOTP = async (req, res) => {
 const updateProfile = async (req, res) => {
     try {
         const updates = Object.keys(req.body);
-        const allowedUpdates = ['name'];
+        const allowedUpdates = ['name', 'username', 'email', 'postalCode','city', 'country'];
         const isAllowed = updates.every(update => allowedUpdates.includes(update));
         if (!isAllowed) return res.status(400).json({data: null, message: 'updates not allowed'});
         for (let key of updates) {

@@ -74,7 +74,7 @@ exports.deleteCheque = async (req, res) => {
         const cheque = await Cheque.findById(id).populate({path: 'user'});
         if (!cheque)
             return res.status(404).json({message: `Cheque with id ${id} not found`, success: false, data: null});
-        check.status = 'deleted';
+        cheque.status = 'deleted';
         const updatedCheque = await cheque.save();
         const populatedCheque = updatedCheque.populate({path: 'user'}).execPopulate();
         res.status(200).json({data: populatedCheque, message: `Cheque with id ${id} retrieved deleted`, success: true});
