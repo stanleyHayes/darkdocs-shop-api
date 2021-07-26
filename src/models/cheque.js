@@ -26,7 +26,7 @@ const chequeSchema = new Schema({
         enum: ['Pending', 'Completed', 'Cancelled', 'Deleted'],
         default: 'Pending'
     }
-});
+}, {timestamps: {createdAt: true, updatedAt: true}});
 
 const Cheque = mongoose.model('Cheque', chequeSchema);
 
