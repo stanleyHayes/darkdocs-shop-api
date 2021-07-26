@@ -32,7 +32,7 @@ exports.updateLogin = async (req, res) => {
         if (!login)
             return res.status(404).json({success: false, message: `Bank Login with id ${id} not found`, data: null});
         const updates = Object.keys(req.body);
-        const allowedUpdates = ['status', 'type', 'includes', 'balance', 'price', 'country'];
+        const allowedUpdates = ['status', 'type', 'includes', 'balance', 'price', 'country', 'bank'];
         const isAllowed = updates.every(update => allowedUpdates.includes(update));
         if (!isAllowed)
             return res.status(400).json({success: false, message: `Updates not allowed`, data: null});
@@ -40,10 +40,10 @@ exports.updateLogin = async (req, res) => {
             login[key] = req.body[key];
         }
         const updatedCCDump = await login.save();
-        const populatedLogin = await updatedCCDump.populate({path: 'bank'}).execPopulate();
+        await updatedCCDump.populate({path: 'bank'}).execPopulate();
         res.status(200).json({
             success: true,
-            data: populatedLogin,
+            data: updatedCCDump,
             message: `Bank Login with id ${id} successfully updated`
         });
     } catch (e) {
@@ -57,7 +57,9 @@ exports.deleteLogin = async (req, res) => {
         const login = await Login.findById(id).populate({path: 'bank'});
         if (!login)
             return res.status(404).json({success: false, message: `Bank Login with id ${id} not found`, data: null});
-
+        login.status = 'Deleted';
+        await login.save();
+        await login.populate({path: 'bank'}).execPopulate();
         res.status(200).json({success: true, data: login, message: `Bank Login with id ${id} successfully deleted`});
     } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
@@ -71,10 +73,10 @@ exports.getLogins = async (req, res) => {
         const limit = parseInt(req.query.size) || 20;
         const skip = (page - 1) * limit;
         const match = {};
-        if(req.query.bank){
+        if (req.query.bank) {
             match['bank'] = req.query.bank;
         }
-        if(req.query.country){
+        if (req.query.country) {
             match['country'] = req.query.country;
         }
         const ccDumps = await Login.find(match).populate({path: 'bank'}).skip(skip).limit(limit);
