@@ -15,7 +15,7 @@ const fundSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['Pending', 'Completed', 'Cancelled', 'Confirmed'],
+        enum: ['Pending', 'Completed', 'Cancelled'],
         default: 'Pending'
     },
     address: {

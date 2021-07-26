@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const Schema= mongoose.Schema;
+const Schema = mongoose.Schema;
 
 const chequeSchema = new Schema({
     user: {
@@ -16,10 +16,15 @@ const chequeSchema = new Schema({
         type: String,
         required: true
     },
+    price: {
+        type: Number,
+        required: true,
+        min: 0
+    },
     status: {
         type: String,
-        enum: ['pending', 'completed', 'cancelled', 'deleted'],
-        default: 'pending'
+        enum: ['Pending', 'Completed', 'Cancelled', 'Deleted'],
+        default: 'Pending'
     }
 });
 

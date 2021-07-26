@@ -33,6 +33,9 @@ exports.getFunds = async (req, res) => {
         if(req.query.user){
             match['user'] = req.query.user;
         }
+        if(req.query.status){
+            match['status'] = req.query.status;
+        }
         const funds = await Fund.find(match).populate({path: 'user'}).skip(skip).limit(limit);
         res.status(200).json({data: funds, message: `${funds.length} funds retrieved successfully`, success: true});
     } catch (e) {

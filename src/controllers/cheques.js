@@ -2,10 +2,10 @@ const Cheque = require('../models/cheque');
 
 exports.createCheque = async (req, res) => {
     try {
-        const {balance, address} = req.body;
-        const check = await Cheque.create({balance, address, user: req.user});
-        const populatedCheque = check.populate('user').execPopulate();
-        res.status(201).json({data: populatedCheque, message: 'Created cheque successfully', success: true});
+        const {balance, address, price} = req.body;
+        const cheque = await Cheque.create({price, balance, address, user: req.user});
+        await cheque.populate('user').execPopulate();
+        res.status(201).json({data: cheque, message: 'Created cheque successfully', success: true});
     } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
     }
