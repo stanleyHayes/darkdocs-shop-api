@@ -4,13 +4,15 @@ const {
     verifyOTP,
     register,
     login,
-    resendOTP, updateProfile, getProfile, updatePassword, deactivateProfile
+    resendOTP, updateProfile, getProfile, updatePassword, deactivateProfile, forgotPassword, resetPassword
 } = require('../controllers/authentication');
 
 const {authenticate} = require('../middleware/authentication');
 
 router.post('/register', register);
 router.post('/login', login);
+router.post('/forgot-password', forgotPassword);
+router.put('/reset-password', resetPassword);
 router.put('/verify-otp', authenticate, verifyOTP);
 router.post('/resend-otp', resendOTP);
 router.put('/profile', authenticate, updateProfile);
