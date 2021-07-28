@@ -60,8 +60,8 @@ exports.updateCheque = async (req, res) => {
             cheque[key] = req.body[key];
         }
         const updatedCheque = await cheque.save();
-        const populatedCheque = updatedCheque.populate({path: 'user'}).execPopulate();
-        res.status(200).json({data: populatedCheque, message: `Cheque with id ${id} retrieved updated`, success: true});
+        await updatedCheque.populate({path: 'user'}).execPopulate();
+        res.status(200).json({data: updatedCheque, message: `Cheque with id ${id} retrieved updated`, success: true});
     } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
     }
