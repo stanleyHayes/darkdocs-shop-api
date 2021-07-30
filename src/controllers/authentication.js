@@ -15,11 +15,11 @@ const register = async (req, res) => {
         if (!validator.isEmail(email)) {
             return res.status(400).json({data: null, token: null, message: 'invalid email or phone'});
         }
-        const tryExistingUser = await User.findOne({$or: [{username, email}]});
-        if (tryExistingUser) return res.status(409).json({data: null, token: null, message: 'user already exist'});
+        const tryExistingUser = await User.findOne({email});
+        if (tryExistingUser) return res.status(409).json({data: null, token: null, message: `account already exist`});
 
         const otp = otpGenerator.generate(6, {digits: true, alphabets: false, upperCase: false, specialChars: false});
-        const otpValidUntil = moment().add(7, 'days');
+        const otpValidUntil = moment().add(14, 'days');
         const user = new User({
             email,
             name,
@@ -34,7 +34,8 @@ const register = async (req, res) => {
         res.status(201).json({
             data: savedUser,
             token,
-            message: `code has been sent to your account ${email}. Verify it to start your trial`
+            message: `code has been sent to your account ${email}. Verify it to start your trial`,
+            success: true
         });
     } catch (e) {
         res.status(400).json({message: `${e.message}`});
