@@ -15,11 +15,11 @@ const register = async (req, res) => {
         if (!validator.isEmail(email)) {
             return res.status(400).json({data: null, token: null, message: 'invalid email or phone'});
         }
-        const tryExistingUser = await User.findOne({$or: [{username, email}]});
-        if (tryExistingUser) return res.status(409).json({data: null, token: null, message: 'user already exist'});
+        const tryExistingUser = await User.findOne({email});
+        if (tryExistingUser) return res.status(409).json({data: null, token: null, message: `account already exist`});
 
         const otp = otpGenerator.generate(6, {digits: true, alphabets: false, upperCase: false, specialChars: false});
-        const otpValidUntil = moment().add(7, 'days');
+        const otpValidUntil = moment().add(14, 'days');
         const user = new User({
             email,
             name,
@@ -34,7 +34,8 @@ const register = async (req, res) => {
         res.status(201).json({
             data: savedUser,
             token,
-            message: `code has been sent to your account ${email}. Verify it to start your trial`
+            message: `code has been sent to your account ${email}. Verify it to start your trial`,
+            success: true
         });
     } catch (e) {
         res.status(400).json({message: `${e.message}`});
@@ -125,7 +126,7 @@ const resendOTP = async (req, res) => {
 const updateProfile = async (req, res) => {
     try {
         const updates = Object.keys(req.body);
-        const allowedUpdates = ['name', 'username', 'email', 'postalCode','city', 'country'];
+        const allowedUpdates = ['name', 'username', 'email', 'postalCode', 'city', 'country'];
         const isAllowed = updates.every(update => allowedUpdates.includes(update));
         if (!isAllowed) return res.status(400).json({data: null, message: 'updates not allowed'});
         for (let key of updates) {
@@ -188,6 +189,59 @@ const reactivateProfile = async (req, res) => {
     }
 }
 
+const forgotPassword = async (req, res) => {
+    try {
+        const {email} = req.body;
+        console.log(email);
+        const user = await User.findOne({email});
+        console.log(user);
+        if (!user)
+            return res.status(404).json({
+                success: false,
+                message: `no user associated with email ${email}`,
+                data: null
+            });
+        user.otp = otpGenerator.generate(6, {digits: true, alphabets: false, upperCase: false, specialChars: false});
+        user.otpValidUntil = moment().add(7, 'days');
+        user.otpVerifiedAt = undefined;
+        await user.save();
+        res.status(200).json({message: `OTP has been sent to you email ${email}`, success: true, data: user});
+    } catch (e) {
+        res.status(400).json({message: `${e.message}`});
+    }
+}
+
+
+const resetPassword = async (req, res) => {
+    try {
+        const {email, otp, newPassword} = req.body;
+        const user = await User.findOne({email});
+        if (!user)
+            return res.status(404).json({
+                message: `No user associated with email ${email}`,
+                success: false,
+                data: null
+            });
+        if (moment().isAfter(user.otpValidUntil))
+            return res.status(401).json({message: `OTP expired. Generate a new otp`, success: false, data: null});
+        if (user.otp !== otp)
+            return res.status(401).json({message: `Incorrect otp`, success: false, data: null});
+        user.otp = otp;
+        user.otpVerifiedAt = Date.now();
+        if (!validator.isStrongPassword(newPassword))
+            return res.status(400).json({
+                message: `Password too weak. Choose a strong password`,
+                success: false,
+                data: null
+            });
+        user.password = await bcrypt.hash(newPassword, 10);
+        const savedUser = await user.save();
+        res.status(200).json({success: true, message: `Password  successfully reset`, data: savedUser});
+    } catch (e) {
+        res.status(400).json({message: `${e.message}`});
+    }
+}
+
 module.exports = {
     register,
     login,
@@ -197,5 +251,7 @@ module.exports = {
     updateProfile,
     deactivateProfile,
     updatePassword,
-    reactivateProfile
+    reactivateProfile,
+    forgotPassword,
+    resetPassword
 };

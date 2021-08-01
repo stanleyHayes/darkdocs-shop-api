@@ -1,11 +1,12 @@
 const Fund = require('../models/fund');
+const User = require('../models/user');
 
 exports.createFund = async (req, res) => {
     try {
         const {address, amount} = req.body;
         const fund = await Fund.create({user: req.user, address, amount});
-        const updatedFund = await fund.populate({path: 'user'}).execPopulate();
-        res.status(201).json({data: updatedFund, message: 'Fund successfully created', success: true});
+        await fund.populate({path: 'user'}).execPopulate();
+        res.status(201).json({data: fund, message: 'Fund successfully created', success: true});
     } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
     }
@@ -58,6 +59,11 @@ exports.updateFund = async (req, res) => {
             return res.status(400).json({success: false, message: `Update not allowed`, data: null});
         for(let key of updates){
             fund[key] = req.body[key];
+        }
+        if(fund.status === 'Completed'){
+            const user = await User.findById(req.user._id);
+            user.balance += fund.amount;
+            await user.save();
         }
         const updatedFund = await fund.save();
         res.status(200).json({data: updatedFund, message: `Fund with id ${id} successfully updated`, success: true});
