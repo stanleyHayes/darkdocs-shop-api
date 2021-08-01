@@ -3,12 +3,12 @@ const User = require('../models/user');
 
 exports.createOrder = async (req, res) => {
     try {
-        const {address, price, type, item} = req.body;
+        const {price, type, item} = req.body;
         const user = await User.findById(req.user._id);
         if (user.balance < price) {
             return res.status(400).json({success: false, data: null, message: `Insufficient balance`});
         }
-        const order = await Order.create({user: req.user, address, price, type, item});
+        const order = await Order.create({user: req.user, price, type, item});
         switch (type) {
             case 'Cheque':
                 await order
@@ -74,6 +74,7 @@ exports.getOrders = async (req, res) => {
         if (req.query.status) {
             match['status'] = req.query.status;
         }
+
         const orders = await Order.find(match).skip(skip).limit(limit).populate({path: 'user'})
             .populate({path: 'item', populate: {path: 'cheque'}})
             .populate({path: 'item', populate: {path: 'login'}})
