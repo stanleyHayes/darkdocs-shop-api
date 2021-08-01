@@ -62,7 +62,7 @@ exports.updateFund = async (req, res) => {
         }
         if(fund.status === 'Completed'){
             const user = await User.findById(req.user._id);
-            user.balance += fund.amount;
+            user.balance += parseFloat(fund.amount);
             await user.save();
         }
         const updatedFund = await fund.save();

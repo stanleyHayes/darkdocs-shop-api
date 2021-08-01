@@ -8,22 +8,19 @@ exports.createOrder = async (req, res) => {
         if (user.balance < price) {
             return res.status(400).json({success: false, data: null, message: `Insufficient balance`});
         }
+        user.balance = parseFloat(user.balance) - parseFloat(price);
+        await user.save();
         const order = await Order.create({user: req.user, price, type, item});
         switch (type) {
-            case 'Cheque':
-                await order
-                    .populate({path: 'user'})
-                    .populate({path: 'item', populate: {path: 'cheque'}}).execPopulate();
-                break;
             case 'Login':
                 await order
                     .populate({path: 'user'})
-                    .populate({path: 'item', populate: {path: 'login'}}).execPopulate();
+                    .populate({path: 'item.login'}).execPopulate();
                 break;
             case 'Dumps':
                 await order
                     .populate({path: 'user'})
-                    .populate({path: 'item', populate: {path: 'ccDumps'}}).execPopulate();
+                    .populate({path: 'item.login', populate: {path: 'bank'}}).execPopulate();
                 break;
         }
         res.status(201).json({data: order, message: 'Order successfully created', success: true});
@@ -40,17 +37,13 @@ exports.getOrder = async (req, res) => {
             return res.status(404).json({success: false, message: `Order with id ${id} not found`, data: null});
         }
         switch (order.type) {
-            case 'Cheque':
-                await order
-                    .populate({path: 'item', populate: {path: 'cheque'}}).execPopulate();
-                break;
             case 'Login':
                 await order
-                    .populate({path: 'item', populate: {path: 'login'}}).execPopulate();
+                    .populate({path: 'item.login', populate: {path: 'bank'}}).execPopulate();
                 break;
             case 'Dumps':
                 await order
-                    .populate({path: 'item', populate: {path: 'ccDumps'}}).execPopulate();
+                    .populate({path: 'item.ccDumps'}).execPopulate();
                 break;
         }
         res.status(200).json({data: order, message: 'Order successfully retrieved', success: true});
@@ -76,9 +69,8 @@ exports.getOrders = async (req, res) => {
         }
 
         const orders = await Order.find(match).skip(skip).limit(limit).populate({path: 'user'})
-            .populate({path: 'item', populate: {path: 'cheque'}})
-            .populate({path: 'item', populate: {path: 'login'}})
-            .populate({path: 'item', populate: {path: 'ccDumps'}});
+            .populate({path: 'item.login', populate: {path: 'bank'}})
+            .populate({path: 'item.ccDumps'});
 
         res.status(200).json({data: orders, message: `${orders.length} orders retrieved successfully`, success: true});
     } catch (e) {
