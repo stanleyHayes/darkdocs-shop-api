@@ -34,21 +34,6 @@ const userSchema = new mongoose.Schema({
     postalCode: {
         type: String,
     },
-    hasVerifiedEmail: {
-        type: Boolean,
-        default: false
-    },
-    otpValidUntil: {
-        type: Date
-    },
-    otp: {
-        type: String,
-        maxLength: 6,
-        minLength: 6
-    },
-    otpVerifiedAt: {
-        type: Date
-    },
     password: {
         required: true,
         type: String,

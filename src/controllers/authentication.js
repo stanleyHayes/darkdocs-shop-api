@@ -18,13 +18,9 @@ const register = async (req, res) => {
         const tryExistingUser = await User.findOne({email});
         if (tryExistingUser) return res.status(409).json({data: null, token: null, message: `account already exist`});
 
-        const otp = otpGenerator.generate(6, {digits: true, alphabets: false, upperCase: false, specialChars: false});
-        const otpValidUntil = moment().add(14, 'days');
         const user = new User({
             email,
             name,
-            otp,
-            otpValidUntil,
             role,
             password: await bcrypt.hash(password, 10),
             username
@@ -56,11 +52,6 @@ const login = async (req, res) => {
             data: null,
             token: null,
             message: `no account associated with ${email}`
-        });
-        if (!existingUser.hasVerifiedEmail) return res.status(401).json({
-            data: null,
-            token: null,
-            message: `please verify your account`
         });
         if (existingUser.isBlocked) return res.status(400).json({
             data: null,
@@ -192,18 +183,13 @@ const reactivateProfile = async (req, res) => {
 const forgotPassword = async (req, res) => {
     try {
         const {email} = req.body;
-        console.log(email);
         const user = await User.findOne({email});
-        console.log(user);
         if (!user)
             return res.status(404).json({
                 success: false,
                 message: `no user associated with email ${email}`,
                 data: null
             });
-        user.otp = otpGenerator.generate(6, {digits: true, alphabets: false, upperCase: false, specialChars: false});
-        user.otpValidUntil = moment().add(7, 'days');
-        user.otpVerifiedAt = undefined;
         await user.save();
         res.status(200).json({message: `OTP has been sent to you email ${email}`, success: true, data: user});
     } catch (e) {
@@ -214,7 +200,7 @@ const forgotPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
     try {
-        const {email, otp, newPassword} = req.body;
+        const {email, newPassword} = req.body;
         const user = await User.findOne({email});
         if (!user)
             return res.status(404).json({
@@ -222,12 +208,6 @@ const resetPassword = async (req, res) => {
                 success: false,
                 data: null
             });
-        if (moment().isAfter(user.otpValidUntil))
-            return res.status(401).json({message: `OTP expired. Generate a new otp`, success: false, data: null});
-        if (user.otp !== otp)
-            return res.status(401).json({message: `Incorrect otp`, success: false, data: null});
-        user.otp = otp;
-        user.otpVerifiedAt = Date.now();
         if (!validator.isStrongPassword(newPassword))
             return res.status(400).json({
                 message: `Password too weak. Choose a strong password`,
