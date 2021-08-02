@@ -12,11 +12,6 @@ const orderSchema = new Schema({
         required: true,
         min: 0
     },
-    status: {
-        type: String,
-        enum: ['Pending', 'Completed', 'Cancelled', 'Deleted'],
-        default: 'Completed'
-    },
     type: {
         type: String,
         enum: ['Cheque', 'Dump', 'Login'],

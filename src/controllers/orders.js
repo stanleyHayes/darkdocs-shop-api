@@ -64,9 +64,6 @@ exports.getOrders = async (req, res) => {
         if (req.query.type) {
             match['type'] = req.query.type;
         }
-        if (req.query.status) {
-            match['status'] = req.query.status;
-        }
 
         const orders = await Order.find(match).skip(skip).limit(limit).populate({path: 'user'})
             .populate({path: 'item.login', populate: {path: 'bank'}})
