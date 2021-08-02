@@ -14,6 +14,9 @@ const getUsers = async (req, res) => {
         if (req.query.role) {
             match['role'] = req.query.role;
         }
+        if (req.query.status) {
+            match['status'] = req.query.status;
+        }
         const users = await User.find(match).limit(limit).skip(skip);
         res.status(200).json({data: users, count: users.length, message: `${users.length} users retrieved`});
     } catch (e) {
