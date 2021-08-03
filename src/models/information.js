@@ -3,11 +3,11 @@ const validator = require('validator');
 
 const Schema = mongoose.Schema;
 
-const appSchema = new Schema({
+const informationSchema = new Schema({
     btcAddress: {
         type: String,
-        validate(value){
-            if(!validator.isBtcAddress(value)){
+        validate(value) {
+            if (!validator.isBtcAddress(value)) {
                 throw new Error(`Invalid BTC Address ${value}`);
             }
         },
@@ -15,8 +15,8 @@ const appSchema = new Schema({
     },
     email: {
         type: String,
-        validate(value){
-            if(!validator.isEmail(value)){
+        validate(value) {
+            if (!validator.isEmail(value)) {
                 throw new Error(`Invalid Email Address ${value}`);
             }
         },
@@ -24,6 +24,6 @@ const appSchema = new Schema({
     }
 });
 
-const Information = mongoose.model('Information', appSchema);
+const Information = mongoose.model('Information', informationSchema);
 
 module.exports = Information;

@@ -222,6 +222,13 @@ const resetPassword = async (req, res) => {
     }
 }
 
+const logout = async (req, res) => {
+    try {
+        res.status(200).json({message: 'Logged out of account'});
+    }catch (e) {
+        res.status(400).json({message: `${e.message}`});
+    }
+}
 module.exports = {
     register,
     login,
@@ -233,5 +240,6 @@ module.exports = {
     updatePassword,
     reactivateProfile,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    logout
 };

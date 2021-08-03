@@ -14,7 +14,7 @@ const orderSchema = new Schema({
     },
     type: {
         type: String,
-        enum: ['Cheque', 'Dump', 'Login'],
+        enum: ['Dump', 'Login'],
         required: true
     },
     item: {

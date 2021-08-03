@@ -15,6 +15,7 @@ const fundsRoutes = require('../src/routes/funds');
 const loginsRoutes = require('../src/routes/logins');
 const instructionsRoute = require('../src/routes/instructions');
 const chequeRoutes = require('../src/routes/cheques');
+const informationRoute = require('../src/routes/information');
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ app.use('/api/v1/banks', bankRoutes);
 app.use('/api/v1/logins', loginsRoutes);
 app.use('/api/v1/dumps', dumpsRoutes);
 app.use('/api/v1/cheques', chequeRoutes);
+app.use('/api/v1/information', informationRoute);
 
 app.listen(process.env.PORT || 5000, () => {
     console.log(`Connected to server in ${process.env.NODE_ENV} mode on port ${process.env.PORT}`);
