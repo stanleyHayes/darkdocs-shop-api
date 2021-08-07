@@ -77,8 +77,9 @@ exports.getCCDumps = async (req, res) => {
         if (req.user.role === 'USER') {
             match['status'] = {$ne: 'Deleted'}
         }
+        const ccDumpsCount = await CCDump.find(match).countDocuments();
         const ccDumps = await CCDump.find(match).skip(skip).limit(limit);
-        res.status(200).json({success: true, data: ccDumps, message: 'CC Dumps successfully created'});
+        res.status(200).json({success: true, ccDumpsCount, data: ccDumps, message: 'CC Dumps successfully created'});
     } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
     }

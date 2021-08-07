@@ -6,7 +6,7 @@ const {authenticate, authorize} = require('../middleware/authentication');
 
 router.route('/')
     .post(authenticate, authorize('ADMIN', 'SUPER_ADMIN'), createBank)
-    .get(authenticate, authorize('ADMIN', 'SUPER_ADMIN'), getBanks);
+    .get(authenticate, authorize('ADMIN', 'SUPER_ADMIN', 'USER'), getBanks);
 
 router.route('/:id')
     .get(authenticate, getBank)

@@ -17,8 +17,10 @@ const getUsers = async (req, res) => {
         if (req.query.status) {
             match['status'] = req.query.status;
         }
+        const usersCount = await User.findOne(match).countDocuments();
+
         const users = await User.find(match).limit(limit).skip(skip);
-        res.status(200).json({data: users, count: users.length, message: `${users.length} users retrieved`});
+        res.status(200).json({data: users, usersCount, message: `${users.length} users retrieved`});
     } catch (e) {
         res.status(400).json({message: `${e.message}`});
     }

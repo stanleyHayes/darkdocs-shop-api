@@ -31,14 +31,20 @@ exports.getFunds = async (req, res) => {
         const limit = parseInt(req.query.size) || 20;
         const skip = (page - 1) * limit;
         const match = {};
-        if(req.query.user){
+        if (req.query.user) {
             match['user'] = req.query.user;
         }
-        if(req.query.status){
+        if (req.query.status) {
             match['status'] = req.query.status;
         }
+        const fundsCount = await Fund.find(match).countDocuments();
         const funds = await Fund.find(match).populate({path: 'user'}).skip(skip).limit(limit);
-        res.status(200).json({data: funds, message: `${funds.length} funds retrieved successfully`, success: true});
+        res.status(200).json({
+            fundsCount,
+            data: funds,
+            message: `${funds.length} funds retrieved successfully`,
+            success: true
+        });
     } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
     }
@@ -55,12 +61,12 @@ exports.updateFund = async (req, res) => {
         const updates = Object.keys(req.body);
         const allowedUpdates = ['status', 'amount'];
         const isAllowed = updates.every(update => allowedUpdates.includes(update));
-        if(!isAllowed)
+        if (!isAllowed)
             return res.status(400).json({success: false, message: `Update not allowed`, data: null});
-        for(let key of updates){
+        for (let key of updates) {
             fund[key] = req.body[key];
         }
-        if(fund.status === 'Completed'){
+        if (fund.status === 'Completed') {
             const user = await User.findById(fund.user);
             user.balance += parseFloat(fund.amount);
             await user.save();

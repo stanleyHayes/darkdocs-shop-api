@@ -17,8 +17,15 @@ exports.addInstruction = async (req, res) => {
 
 exports.getInstructions = async (req, res) => {
     try {
-        const instructions = await Instruction.find({});
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.size) || 20;
+        const skip = (page - 1) * limit;
+        const match = {};
+
+        const instructionsCount = await Instruction.find(match).countDocuments();
+        const instructions = await Instruction.find(match).skip(skip).limit(limit);
         res.status(200).json({
+            instructionsCount,
             data: instructions,
             message: `${instructions.length} instructions retrieved`,
             success: true

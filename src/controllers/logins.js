@@ -80,11 +80,16 @@ exports.getLogins = async (req, res) => {
             match['country'] = req.query.country;
         }
 
-        if(req.user.role === 'USER'){
+        if (req.user.role === 'USER') {
             match['status'] = {$ne: 'Deleted'}
         }
-        const ccDumps = await Login.find(match).populate({path: 'bank'}).skip(skip).limit(limit);
-        res.status(200).json({success: true, data: ccDumps, message: 'Bank Logins successfully retrieved'});
+        const loginsCount = await Login.find(match).countDocuments();
+        const logins = await Login.find(match).populate({path: 'bank'}).skip(skip).limit(limit);
+        res.status(200).json({
+            success: true,
+            loginsCount,
+            data: logins,
+            message: 'Bank Logins successfully retrieved'});
     } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
     }

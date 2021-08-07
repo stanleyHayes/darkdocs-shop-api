@@ -69,7 +69,9 @@ exports.getOrders = async (req, res) => {
             .populate({path: 'item.login', populate: {path: 'bank'}})
             .populate({path: 'item.ccDumps'});
 
-        res.status(200).json({data: orders, message: `${orders.length} orders retrieved successfully`, success: true});
+        const ordersCount = await Order.find(match).countDocuments();
+
+        res.status(200).json({data: orders, ordersCount, message: `${orders.length} orders retrieved successfully`, success: true});
     } catch (e) {
         res.status(400).json({message: `Error: ${e.message}`});
     }
