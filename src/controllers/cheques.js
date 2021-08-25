@@ -1,5 +1,5 @@
 const Cheque = require('../models/cheque');
-const User = require('../models/cheque');
+const User = require('../models/user');
 
 exports.createCheque = async (req, res) => {
     try {
