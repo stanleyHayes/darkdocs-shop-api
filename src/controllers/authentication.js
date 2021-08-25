@@ -30,7 +30,7 @@ const register = async (req, res) => {
         res.status(201).json({
             data: savedUser,
             token,
-            message: `code has been sent to your account ${email}. Verify it to start your trial`,
+            message: `Welcome to the Darkdocs Shop Club. Enjoy`,
             success: true
         });
     } catch (e) {
